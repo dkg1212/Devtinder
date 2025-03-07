@@ -3,19 +3,60 @@ const express= require("express");
 const app= express();
 const connectDB=require("./config/database");
 const User =require("./models/user");
+const {validateSignUpData}=require("./utils/validation");
+const bcrypt=require("bcrypt");
+
 app.use(express.json());
 
 app.post("/signup",async (req,res)=>{
-    const user=new User(req.body);
     try{
-    await user.save()
-    res.send("user added Successfully");
-   }
-   catch(err){
-    res.status(500).send("somthing went Wrong "+err.message)
+        //validation of data
+        validateSignUpData(req);
+        
+        const {firstName,lastName,emailId,password,age,gender}=req.body;
+
+        //encrypt the password
+        const passwordHash=await bcrypt.hash(password,10);
+
+        //creating a new instance of User Model
+        const user=new User({
+            firstName,
+            lastName,
+            emailId,
+            password:passwordHash,
+            age,
+            gender,
+        });
+
+        await user.save()
+        res.send("user added Successfully");
+   }catch(err){
+    res.status(500).send("somthing went Wrong : "+err.message)
    }
 
 });
+
+app.post("/login",async(req,res)=>{
+    try {
+        const {emailId,password}=req.body;
+        const user=await User.findOne({emailId:emailId});
+
+        if(!user){
+            throw new Error("Invalid UserId or Password");
+        }
+        
+        const isStrongPassword=await bcrypt.compare(password,user.password);
+
+        if(isStrongPassword){
+            res.send("login succesfull");
+        }else{
+            throw new Error("Invalid UserId or Password")
+        }
+        
+    } catch (error) {
+        res.status(400).send("Somthing went Wrong : "+error.message);
+    }
+})
 
 app.get("/feed",async(req,res)=>{
     try{
