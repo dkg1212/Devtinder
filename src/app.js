@@ -12,7 +12,7 @@ app.post("/signup",async (req,res)=>{
     res.send("user added Successfully");
    }
    catch(err){
-    res.status(500).send("somthing went Wrong",+err.message)
+    res.status(500).send("somthing went Wrong "+err.message)
    }
 
 });
@@ -56,17 +56,32 @@ app.delete("/user",async(req,res)=>{
 
 })
 
-app.patch("/user",async(req,res)=>{
-    const userId=req.body.userId;
+app.patch("/user/:userId",async(req,res)=>{
+    const userId=req.params?.userId;
     const data=req.body;
-    console.log(userId);
     try {
-        await User.findByIdAndUpdate({ _id: userId },data,{returnDocument:"before"});
+        const ALLOW_UPDATES=["age","gender","about","skills"];
+        const isUpadateallowed=Object.keys(data).every((k)=>
+        ALLOW_UPDATES.includes(k),
+        );
+        if(!isUpadateallowed){
+            throw new Error("Update not allowed !");
+        }
+        if(req.body.skills.length>10){
+            throw new Error("Skills More than 10 Not allowed !");
+        }
+        if(req.body.about.length>100){
+            throw new Error("More than 100 word not allowed Not allowed !");
+        }
+        await User.findByIdAndUpdate({ _id: userId },data,
+            {
+                returnDocument:"before",
+                runValidators:true,
+            });
         res.send("Upadated successfully !!");
         
     } catch (error) {
-        console.log(error);
-        res.status(400).send("sometging went wrong");
+        res.status(400).send("something went wrong"+error.message);
     }
 
 })
@@ -74,8 +89,8 @@ app.patch("/user",async(req,res)=>{
 connectDB()
     .then(()=>{
         console.log("database connection eastablish.....");
-        app.listen(7777,()=>{
-            console.log("server is sucessfully listening to port no '7777'");
+        app.listen(777,()=>{
+            console.log("server is sucessfully listening to port no '777'");
         });
 
     })
