@@ -1,12 +1,14 @@
 const express= require("express");
-
 const app= express();
 const connectDB=require("./config/database");
 const User =require("./models/user");
 const {validateSignUpData}=require("./utils/validation");
 const bcrypt=require("bcrypt");
+const cookieParser=require("cookie-parser");
+const jwt=require("jsonwebtoken");
 
 app.use(express.json());
+app.use(cookieParser());
 
 app.post("/signup",async (req,res)=>{
     try{
@@ -48,6 +50,12 @@ app.post("/login",async(req,res)=>{
         const isStrongPassword=await bcrypt.compare(password,user.password);
 
         if(isStrongPassword){
+            //create JWT token
+
+            const token=await jwt.sign({_id:user._id},"DEV@tinder$790");
+
+            //Add the token to cookie and send the response back to user 
+            res.cookie("token",token);
             res.send("login succesfull");
         }else{
             throw new Error("Invalid UserId or Password")
@@ -55,6 +63,34 @@ app.post("/login",async(req,res)=>{
         
     } catch (error) {
         res.status(400).send("Somthing went Wrong : "+error.message);
+    }
+})
+
+app.get("/profile",async(req,res)=>{
+    try{
+        const cookies=req.cookies;
+
+        const {token}=cookies;
+
+        //validate token
+        if(!token){
+            throw new Error("Error 404");
+            }
+
+        const decodeMessage=await jwt.verify(token,"DEV@tinder$790") ;
+        const {_id}=decodeMessage;
+
+        const user =await User.findById(_id);
+        if(!user){
+            throw new Error("User not found");
+            
+        }
+
+        res.send(user);
+        //res.send("Reading Cookie ")
+    }
+    catch(err){
+        res.status(200).send("cookie not found : "+err.message);
     }
 })
 
@@ -111,7 +147,7 @@ app.patch("/user/:userId",async(req,res)=>{
         if(req.body.skills.length>10){
             throw new Error("Skills More than 10 Not allowed !");
         }
-        if(req.body.about.length>100){
+        if(data.about&&data.about.length>100){
             throw new Error("More than 100 word not allowed Not allowed !");
         }
         await User.findByIdAndUpdate({ _id: userId },data,
@@ -122,7 +158,7 @@ app.patch("/user/:userId",async(req,res)=>{
         res.send("Upadated successfully !!");
         
     } catch (error) {
-        res.status(400).send("something went wrong"+error.message);
+        res.status(400).send("something went wrong : "+error.message);
     }
 
 })
