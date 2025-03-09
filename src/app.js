@@ -48,15 +48,13 @@ app.post("/login",async(req,res)=>{
         if(!user){
             throw new Error("Invalid UserId or Password");
         }
+        //take the password by user and give it to User.js
+        const isPasswordValid=await user.validatePassword(password);
         
-        const isStrongPassword=await bcrypt.compare(password,user.password);
-
-        if(isStrongPassword){
+        if(isPasswordValid){
             //create JWT token
 
-            const token=await jwt.sign({_id:user._id},"DEV@tinder$790",{
-                expiresIn: "7d",
-            });
+            const token=await user.getJWT();
 
             //Add the token to cookie and send the response back to user 
             res.cookie("token",token,{
