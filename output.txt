@@ -1,0 +1,10 @@
+
+int array[100];
+if (array[0] < 10) {
+    printf("Array size is small\n");
+} else {
+    printf("Array size is sufficient\n");
+}
+
+float circumference = 2 * 3.14 * 10;
+printf("Circumference: %f\n", circumference);
