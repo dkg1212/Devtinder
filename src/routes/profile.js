@@ -2,7 +2,7 @@ const express=require("express");
 const authRouter=express.Router();
 const {userAuth}=require("../middlewares/auth");
 
-authRouter.get("/profile",userAuth,async(req,res)=>{
+authRouter.get("/profile/view",userAuth,async(req,res)=>{
     try{
         const user=req.user;
 
@@ -12,6 +12,8 @@ authRouter.get("/profile",userAuth,async(req,res)=>{
         res.status(200).send("cookie not found : "+err.message);
     }
 });
+
+
 
 module.exports=authRouter
 
