@@ -38,6 +38,8 @@ authRouter.patch("/profile/edit",userAuth,async(req,res)=>{
 authRouter.patch("/profile/password",userAuth,async(req,res)=>{
     try {
         const user=req.user
+
+        res.send(user.password);
     } catch (err) {
         
     }
