@@ -19,8 +19,8 @@ app.use("/",requsetRouter);
 connectDB()
     .then(()=>{
         console.log("database connection eascotablish.....");
-        app.listen(777,()=>{
-            console.log("server is sucessfully listening to port no '777'");
+        app.listen(7777,()=>{
+            console.log("server is sucessfully listening to port no '7777'");
         });
 
     })

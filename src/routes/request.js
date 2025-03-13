@@ -24,8 +24,6 @@ authRouter.post("/request/send/:status/:toUserId",userAuth,async(req,res)=>{
             .status(400)
             .json({message : "User Not Found !"});
         }
-        
-        
 
         const existingConnectionRequest =await ConnectionRequest.findOne({
             $or:[

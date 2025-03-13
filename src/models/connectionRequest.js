@@ -23,6 +23,17 @@ const connectionRequestSchema=new mongoose.Schema(
     },
     {Timestamp:true}
 );
+connectionRequestSchema.index({fromUserID:1,toUserID:1});
+
+//check and verify if req between User to self 
+connectionRequestSchema.pre("save",function(next){
+    const connectionRequest=this;
+    if(connectionRequest.fromUserID.equals(this.toUserID)){
+        throw new Error("Self Love is not valid 😂");
+    }
+    next();
+});
+
 
 const connectionRequestModel=new mongoose.model(
     "ConnectionRequest",
