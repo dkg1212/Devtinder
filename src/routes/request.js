@@ -1,11 +1,11 @@
 const express=require("express");
-const authRouter=express.Router();
+const requestRouter=express.Router();
 const {userAuth}=require("../middlewares/auth");
 const ConnectionRequest= require("../models/connectionRequest");
 const User=require("../models/user");
 
 
-authRouter.post("/request/send/:status/:toUserId",userAuth,async(req,res)=>{
+requestRouter.post("/request/send/:status/:toUserId",userAuth,async(req,res)=>{
     try {
         const fromUserID=req.user._id;
         const toUserID=req.params.toUserId;
@@ -54,4 +54,4 @@ authRouter.post("/request/send/:status/:toUserId",userAuth,async(req,res)=>{
 
 })
 
-module.exports=authRouter;
+module.exports=requestRouter;
