@@ -70,10 +70,13 @@ requestRouter.post("/request/review/:status/:requestId",userAuth,async (req,res)
             toUserID:loggedInUser,
             status:"interested",
 
-        });
+        }).populate("fromUserID"
+            ,"firstName lastName "
+        );
 
         if(!connectionRequest){
-            res.status(404).json({message :" Connection request not found "});
+            res.status(404).json({message :" Connection request not found "
+                ,data}) 
         }
 
         connectionRequest.status=status;
@@ -81,14 +84,14 @@ requestRouter.post("/request/review/:status/:requestId",userAuth,async (req,res)
         const data = await connectionRequest.save();
 
         res.json({
-            message: " Connection request "+status,
-            data,
+            message:" Connection request "+status,
+            data
         });
 
 
 
     } catch (err) {
-        
+        res.status(400).send("Error : "+err.message);
     }
 
 });

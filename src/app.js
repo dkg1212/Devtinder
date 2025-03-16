@@ -8,11 +8,13 @@ app.use(cookieParser());
 
 const authRouter=require("./routes/auth");
 const profileRouter=require("./routes/profile");
-const requsetRouter=require("./routes/request")
+const requsetRouter=require("./routes/request");
+const userRouter = require("./routes/user");
 
 app.use("/",authRouter);
 app.use("/",profileRouter);
 app.use("/",requsetRouter);
+app.use("/",userRouter);
 
 
 
