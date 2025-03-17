@@ -2,6 +2,7 @@ const express=require("express");
 const userRouter=express.Router();
 const {userAuth}=require("../middlewares/auth");
 const ConnectionRequest = require("../models/connectionRequest");
+const User=require("../models/user")
 
 const USER_SAFE_DATA="firstName lastName age gender about skill"
 
@@ -38,8 +39,17 @@ userRouter.get("/user/connections",userAuth,async(req,res)=>{
         }).populate(
             "fromUserID",
             USER_SAFE_DATA
+        ).populate(
+            "toUserID",
+            USER_SAFE_DATA
         );
-        const data =connectionRequest.map((row)=>row.fromUserID);
+        const data =connectionRequest.map((row)=>{
+            if(row.fromUserID._id.toString()===loggedInUser._id.toString()){
+                return row.toUserID;
+            }
+
+            return row.fromUserID;
+        });
 
         res.json({data});
 
@@ -47,5 +57,32 @@ userRouter.get("/user/connections",userAuth,async(req,res)=>{
        res.status(404).send("Error : "+err.message); 
     }
 });
+
+userRouter.get("/feed",userAuth ,async(req,res)=>{
+  try{  
+        const loggedInUser=req.user;
+
+        const connectionRequest=await ConnectionRequest.find({
+            $or:[{fromUserID:loggedInUser._id},{toUserID:loggedInUser._id}],
+        }).select("fromUserID toUserID");
+
+        const hideUserFromFeed=new Set();
+        connectionRequest.forEach((req)=>{
+            hideUserFromFeed.add(req.fromUserID.toString()),
+            hideUserFromFeed.add(req.toUserID.toString())
+        });
+
+        const users=await User.find({
+            $and:[
+                {_id:{$nin: Array.from(hideUserFromFeed)}},
+                {_id:{$nin:loggedInUser._id}},
+            ],
+        }).select(USER_SAFE_DATA);
+        res.json({users});
+    }
+    catch(err){
+        res.status(404).send("Error : "+err.message)
+    }
+})
 
 module.exports=userRouter;
