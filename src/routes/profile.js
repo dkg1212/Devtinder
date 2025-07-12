@@ -10,7 +10,7 @@ profileRouter.get("/profile/view",userAuth,async(req,res)=>{
         res.send(user);
     }
     catch(err){
-        res.status(200).send("cookie not found : "+err.message);
+        res.status(401).send("cookie not found : "+err.message);
     }
 });
 
