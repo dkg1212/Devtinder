@@ -6,9 +6,11 @@ const cors = require("cors");
 
 app.use(express.json());
 app.use(cookieParser());
+require("dotenv").config();
 app.use(
     cors({
         origin: "http://localhost:5173",
+        origin:"http://localhost:5174",
         credentials: true,
     })
 );
@@ -28,8 +30,8 @@ app.use("/",userRouter);
 connectDB()
     .then(()=>{
         console.log("database connection eascotablish.....");
-        app.listen(7777,()=>{
-            console.log("server is sucessfully listening to port no '7777'");
+        app.listen(process.env.PORT,()=>{
+            console.log(`server is sucessfully listening to port no '${process.env.PORT}'`);
         });
 
     })
